@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>res/addCol.png</file>
+        <file>res/addRow.png</file>
+        <file>res/genRand.png</file>
+        <file>res/icon.png</file>
+    </qresource>
+</RCC>

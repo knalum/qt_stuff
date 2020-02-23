@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>img/kpiIcon.png</file>
+        <file>img/defaultIcon.png</file>
+        <file>img/blueSphere.png</file>
+        <file>img/folderIcon.png</file>
+        <file>img/array.png</file>
+        <file>img/newFile.png</file>
+        <file>img/text.png</file>
+    </qresource>
+</RCC>

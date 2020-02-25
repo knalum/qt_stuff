@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>res/font.png</file>
+        <file>res/page_excel.png</file>
+    </qresource>
+</RCC>

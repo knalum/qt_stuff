@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "abstractnode.h"
+
 #include <QMainWindow>
 #include <QAbstractItemModel>
 #include <QStandardItemModel>
@@ -18,10 +20,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+
 private slots:
 
 private:
     Ui::MainWindow *ui;
+    AbstractNode *copy;
 
 };
 #endif // MAINWINDOW_H

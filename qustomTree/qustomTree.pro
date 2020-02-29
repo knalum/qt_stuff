@@ -20,6 +20,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     numericnode.cpp \
+    objectnode.cpp \
     stringnode.cpp \
     treemodel.cpp
 
@@ -27,6 +28,7 @@ HEADERS += \
     abstractnode.h \
     mainwindow.h \
     numericnode.h \
+    objectnode.h \
     stringnode.h \
     treemodel.h
 

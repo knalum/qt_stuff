@@ -16,15 +16,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    jsonarrayitem.cpp \
     main.cpp \
     mainwindow.cpp \
-    stringitem.cpp
+    node/abstractnode.cpp \
+    node/arraynode.cpp \
+    node/numericnode.cpp \
+    node/objectnode.cpp \
+    node/stringnode.cpp \
+    treemodel.cpp
 
 HEADERS += \
-    jsonarrayitem.h \
     mainwindow.h \
-    stringitem.h
+    node/abstractnode.h \
+    node/arraynode.h \
+    node/numericnode.h \
+    node/objectnode.h \
+    node/stringnode.h \
+    treemodel.h
 
 FORMS += \
     mainwindow.ui

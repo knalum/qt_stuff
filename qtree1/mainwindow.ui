@@ -59,6 +59,16 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Value</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="valueField"/>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -89,7 +99,9 @@
      <property name="title">
       <string>Add</string>
      </property>
+     <addaction name="actionAdd_object"/>
      <addaction name="actionString_Item"/>
+     <addaction name="actionNumeric"/>
      <addaction name="actionArray"/>
     </widget>
     <addaction name="actionremoveItem"/>
@@ -116,8 +128,12 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionNew"/>
-   <addaction name="actionString_Item"/>
+   <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionAdd_object"/>
    <addaction name="actionArray"/>
+   <addaction name="actionString_Item"/>
+   <addaction name="actionNumeric"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -169,11 +185,33 @@
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/res/img/file_save_as.png</normaloff>:/res/img/file_save_as.png</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionAdd_object">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/res/img/module.png</normaloff>:/res/img/module.png</iconset>
+   </property>
+   <property name="text">
+    <string>Object</string>
+   </property>
+  </action>
+  <action name="actionNumeric">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/res/img/numeric.png</normaloff>:/res/img/numeric.png</iconset>
+   </property>
+   <property name="text">
+    <string>Numeric</string>
    </property>
   </action>
  </widget>

@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "treemodel.h"
+
 #include <QAbstractItemModel>
 #include <QItemSelection>
 #include <QMainWindow>
@@ -33,13 +35,20 @@ private slots:
 
     void on_actionSave_triggered();
 
+    void on_actionAdd_object_triggered();
+
+    void on_actionNumeric_triggered();
+
+    void on_valueField_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
-    QStandardItemModel *model;
+    TreeModel *model;
     void changed(const QItemSelection &selected, const QItemSelection &deselected);
     const QIcon folder = QIcon(":/res/img/folderIcon.png");
     const QIcon greenSphere = QIcon(":/res/img/kpiIcon.png");
     void onCustomContextMenu(const QPoint &pos);
-    void addNode(QModelIndex,QStandardItem*);
+    void addNode(QModelIndex,AbstractNode*);
+    AbstractNode *copy;
 };
 #endif // MAINWINDOW_H

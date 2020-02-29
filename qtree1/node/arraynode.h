@@ -10,9 +10,12 @@ public:
     ArrayNode();
     ArrayNode(QString n) : AbstractNode(n,QIcon(":/res/img/array.png")) {}
 
-    QString getType() override {return "object";}
-    QString getTextValue() override {return "";}
+    QString getType() const override {return "array";}
+    QString getTextValue() const override {return "";}
     void setValue(QString) override {}
+
+    QJsonArray writeJsonArray(QJsonArray &arr) const;
+
 };
 
 #endif // ARRAYNODE_H

@@ -41,14 +41,22 @@ private slots:
 
     void on_valueField_textChanged(const QString &arg1);
 
+    void on_actionRandom_tree_triggered();
+
+    void on_actionExpand_children_triggered();
+
 private:
     Ui::MainWindow *ui;
     TreeModel *model;
+    int count=0;
     void changed(const QItemSelection &selected, const QItemSelection &deselected);
     const QIcon folder = QIcon(":/res/img/folderIcon.png");
     const QIcon greenSphere = QIcon(":/res/img/kpiIcon.png");
     void onCustomContextMenu(const QPoint &pos);
     void addNode(QModelIndex,AbstractNode*);
     AbstractNode *copy;
+    AbstractNode *randomize(AbstractNode*,int);
+    int countNodes(AbstractNode *);
+    void dfs(QStandardItem * item);
 };
 #endif // MAINWINDOW_H

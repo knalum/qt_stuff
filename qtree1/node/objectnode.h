@@ -11,9 +11,11 @@ public:
     ObjectNode();
     ObjectNode(QString n) : AbstractNode(n,QIcon(":/res/img/module.png")) {}
 
-    QString getType() override {return "object";}
-    QString getTextValue() override {return "";}
+    QString getType() const override {return "object";}
+    QString getTextValue() const override {return "";}
     void setValue(QString) override {}
+
+    QJsonObject writeJson(QJsonObject &json) const;
 };
 
 #endif // OBJECTNODE_H

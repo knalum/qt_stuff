@@ -11,6 +11,10 @@
 #include <QRandomGenerator>
 #include <QShortcut>
 #include <QClipboard>
+#include <QFile>
+#include <QDir>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #include <node/arraynode.h>
 #include <node/numericnode.h>
@@ -94,7 +98,29 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_triggered(){
     model->clear();
     auto *root = new ObjectNode("root");
+
+    // obj
+    /*
+    auto ch1 = new ObjectNode("ch1");
+    ch1->appendRow(new ObjectNode("sub1"));
+    auto ch2 = new ObjectNode("ch2");
+    auto ch3 = new ObjectNode("ch3");
+    root->appendRow(ch1);
+    root->appendRow(ch2);
+    root->appendRow(ch3);
+    */
+
+    // arr
+    /*
+    auto arr = new ArrayNode("arr");
+    arr->appendRow(new StringNode("str1","text"));
+    root->appendRow(arr);
     model->appendRow(root);
+    */
+
+    model->appendRow(root);
+
+    ui->treeView->setExpanded(root->index(),true);
 }
 
 void MainWindow::changed(const QItemSelection &selected, const QItemSelection &deselected){
@@ -226,9 +252,21 @@ void dfs(AbstractNode *root){
 }
 
 void MainWindow::on_actionSave_triggered(){
-    QStandardItem *item = model->item(0,0);
-    AbstractNode *casted = dynamic_cast<AbstractNode*>(item);
-    dfs(casted);
+    QFile file(QDir::homePath()+"/save.json");
+    if( !file.open(QIODevice::WriteOnly) ){
+        qWarning("Couldn't open save file");
+        return;
+    }
+
+    QJsonObject rootJsonObj;
+
+    ObjectNode *item = dynamic_cast<ObjectNode*>(model->item(0,0));
+    item->writeJson(rootJsonObj);
+
+    QJsonDocument saveDoc(rootJsonObj);
+
+    file.write(saveDoc.toJson());
+    file.close();
 }
 
 void MainWindow::on_actionAdd_object_triggered(){
@@ -249,3 +287,70 @@ void MainWindow::on_actionNumeric_triggered()
     }
 }
 
+
+void MainWindow::on_actionRandom_tree_triggered(){
+    const int RANDOM_LEVEL = 10;
+
+    this->on_actionNew_triggered();
+    auto root = dynamic_cast<AbstractNode*>(this->model->item(0,0));
+    randomize(root,RANDOM_LEVEL);
+
+    this->count=0;
+    this->countNodes(root);
+    ui->statusBar->showMessage("Nodecount = "+QString::number(this->count));
+}
+
+
+AbstractNode* MainWindow::randomize(AbstractNode *root,int level){
+    int rows = QRandomGenerator::global()->generate()%level;
+    for(int i=0;i<rows;i++){
+
+        auto name = QUuid::createUuid().toString().mid(1,6);
+
+
+        int type = QRandomGenerator::global()->generate()%3;
+        if( type == 0 ){
+            auto value = QUuid::createUuid().toString().mid(1,6);
+            auto node = new StringNode(name,value);
+            root->appendRow(node);
+        }else if (type == 1 ){
+            auto value = 100*QRandomGenerator::global()->generate()%10;
+            auto node = new NumericNode(name,value);
+            root->appendRow(node);
+        }else if (type == 2 ){
+            auto newNode = new ObjectNode(name);
+            randomize(newNode,level-1);
+            root->appendRow(newNode);
+        }
+    }
+
+
+}
+
+int MainWindow::countNodes(AbstractNode *root){
+    for(int i=0;i<root->rowCount();++i){
+        ++count;
+        auto ch = dynamic_cast<AbstractNode*>(root->child(i,0));
+        countNodes(ch);
+    }
+}
+
+void MainWindow::dfs(QStandardItem * item){
+    ui->treeView->setExpanded(item->index(),true);
+    for(int i=0;i<item->rowCount();++i){
+        dfs(item->child(i,0));
+    }
+}
+
+
+void MainWindow::on_actionExpand_children_triggered(){
+    QModelIndex idx;
+    if( !ui->treeView->selectionModel()->selectedIndexes().isEmpty() ){
+        idx = ui->treeView->selectionModel()->selectedIndexes().at(0);
+    }else{
+        idx = model->index(0,0);
+    }
+
+    auto item = model->itemFromIndex(idx);
+    dfs(item);
+}

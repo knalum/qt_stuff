@@ -106,6 +106,8 @@
     </widget>
     <addaction name="actionremoveItem"/>
     <addaction name="menuAdd"/>
+    <addaction name="actionRandom_tree"/>
+    <addaction name="actionExpand_children"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -135,6 +137,7 @@
    <addaction name="actionString_Item"/>
    <addaction name="actionNumeric"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew">
    <property name="icon">
     <iconset resource="res.qrc">
@@ -212,6 +215,22 @@
    </property>
    <property name="text">
     <string>Numeric</string>
+   </property>
+  </action>
+  <action name="actionRandom_tree">
+   <property name="text">
+    <string>Random tree</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionExpand_children">
+   <property name="text">
+    <string>Expand children</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Num+Right</string>
    </property>
   </action>
  </widget>

@@ -9,9 +9,9 @@ public:
     NumericNode();
     NumericNode(QString n,const double &d) : AbstractNode(n,QIcon(":/res/img/numeric.png")) {this->value=d;}
 
-    QString getType() override {return "numeric";}
+    QString getType() const override {return "numeric";}
     double getValue() {return value;}
-    QString getTextValue() override {return QString::number(value);}
+    QString getTextValue() const override {return QString::number(value);}
     void setValue(QString str) override {
         bool ok;
         auto val = str.toDouble(&ok);
@@ -19,6 +19,7 @@ public:
             value = val;
         }
     }
+
 
 private:
     double value;

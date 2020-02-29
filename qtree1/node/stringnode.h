@@ -10,10 +10,11 @@ public:
     StringNode();
     StringNode(QString n,const QString &value) : AbstractNode(n,QIcon(":/res/img/text.png")) {this->value=value;}
 
-    QString getType() override {return "string";}
+    QString getType() const override {return "string";}
     QString getValue() {return value;}
-    QString getTextValue() override {return value;}
+    QString getTextValue() const override {return value;}
     void setValue(QString v) override {value = v;}
+
 
 private:
     QString value;

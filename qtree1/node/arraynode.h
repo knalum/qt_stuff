@@ -15,6 +15,7 @@ public:
     void setValue(QString) override {}
 
     QJsonArray writeJsonArray(QJsonArray &arr) const;
+    QJsonArray readJson(const QJsonArray &arr);
 
 };
 

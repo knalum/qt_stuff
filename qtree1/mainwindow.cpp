@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QFileDialog>
 
 #include <node/arraynode.h>
 #include <node/numericnode.h>
@@ -121,15 +122,20 @@ void MainWindow::on_actionNew_triggered(){
     model->appendRow(root);
 
     ui->treeView->setExpanded(root->index(),true);
+    QModelIndex idx = model->indexFromItem(root);
+    ui->treeView->selectionModel()->select(idx,QItemSelectionModel::SelectCurrent);
 }
 
 void MainWindow::changed(const QItemSelection &selected, const QItemSelection &deselected){
+
     QModelIndexList localIndexes = selected.at(0).indexes();
     AbstractNode *item = getNode(model->itemFromIndex(localIndexes.at(0)));
 
     ui->lineEdit->setText(item->text());
     ui->typeLabel->setText(item->getType());
     ui->valueField->setText(item->getTextValue());
+
+    qDebug()<<"Changed "<<item->text();
 
     if( dynamic_cast<ObjectNode*>(item) != nullptr ){
         ui->valueField->setVisible(false);
@@ -251,22 +257,94 @@ void dfs(AbstractNode *root){
     }
 }
 
-void MainWindow::on_actionSave_triggered(){
-    QFile file(QDir::homePath()+"/save.json");
-    if( !file.open(QIODevice::WriteOnly) ){
-        qWarning("Couldn't open save file");
+
+void MainWindow::on_actionOpen_triggered(){
+    auto fileName = QFileDialog::getOpenFileName(this,"Open the file",QDir::homePath());
+    if( fileName.isEmpty() || fileName.isNull() ){
+        return;
+    }else{
+        this->filepath = fileName;
+    }
+
+    QFile file(fileName);
+    if( !file.open( QFile::ReadOnly | QFile::Text) ){
+        QMessageBox::warning(this,"","Can't open file");
+        return;
+    }
+    this->filepath = fileName;
+
+    QTextStream in(&file);
+
+    QByteArray jsonByteArr = file.readAll();
+    QJsonDocument loadDoc(QJsonDocument::fromJson(jsonByteArr));
+
+    QString jsonString = loadDoc.toJson(QJsonDocument::Indented);
+
+
+    ObjectNode *root = new ObjectNode("newRoot");
+    root->readJson(loadDoc.object());
+
+    model->clear();
+    model->appendRow(root);
+
+    on_actionExpand_children_triggered();
+    file.close();
+}
+
+
+void MainWindow::on_save_triggered(){
+    if( this->filepath == nullptr ){
+        auto filename = QFileDialog::getSaveFileName(this,"Save as",QDir::homePath());
+        if( filename.isNull() || filename.isEmpty() ){
+            return;
+        }else{
+            this->filepath = filename;
+        }
+    }
+
+
+    QFile file(this->filepath);
+    if( !file.open(QFile::WriteOnly | QFile::Text) ){
+        QMessageBox::warning(this,"","Couldn't open file");
         return;
     }
 
-    QJsonObject rootJsonObj;
-
-    ObjectNode *item = dynamic_cast<ObjectNode*>(model->item(0,0));
-    item->writeJson(rootJsonObj);
-
-    QJsonDocument saveDoc(rootJsonObj);
+    QStandardItem *nodeIdx = model->item(0,0);
+    QJsonDocument saveDoc = this->toJson(nodeIdx);
 
     file.write(saveDoc.toJson());
     file.close();
+
+}
+
+void MainWindow::on_actionSave_triggered(){
+    auto filename = QFileDialog::getSaveFileName(this,"Save as",QDir::homePath());
+    if( filename.isNull() || filename.isEmpty() ){
+        return;
+    }else{
+        this->filepath = filename;
+    }
+
+    QFile file(this->filepath);
+    if( !file.open(QFile::WriteOnly | QFile::Text) ){
+        QMessageBox::warning(this,"","Couldn't open file");
+        return;
+    }
+
+    QStandardItem *nodeIdx = model->item(0,0);
+    QJsonDocument saveDoc = this->toJson(nodeIdx);
+
+    file.write(saveDoc.toJson());
+    file.close();
+}
+
+
+QJsonDocument MainWindow::toJson(QStandardItem *nodeIdx) const{
+    QJsonObject rootJsonObj;
+    ObjectNode *item = dynamic_cast<ObjectNode*>(nodeIdx);
+    item->writeJson(rootJsonObj);
+    QJsonDocument saveDoc(rootJsonObj);
+    return saveDoc;
 }
 
 void MainWindow::on_actionAdd_object_triggered(){
@@ -354,3 +432,18 @@ void MainWindow::on_actionExpand_children_triggered(){
     auto item = model->itemFromIndex(idx);
     dfs(item);
 }
+
+void MainWindow::on_tabWidget_tabBarClicked(int index)
+{
+    qDebug()<<"Tab index: "+QString::number(index);
+    if( index == 1 ){
+        // JSON-tab
+        QStandardItem *nodeIdx = model->item(0,0);
+        QString jsonStr(this->toJson(nodeIdx).toJson());
+        ui->jsonTextField->setPlainText(jsonStr);
+    }
+}
+
+
+
+

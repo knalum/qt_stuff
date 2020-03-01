@@ -33,8 +33,6 @@ private slots:
 
     void on_actionArray_triggered();
 
-    void on_actionSave_triggered();
-
     void on_actionAdd_object_triggered();
 
     void on_actionNumeric_triggered();
@@ -45,10 +43,20 @@ private slots:
 
     void on_actionExpand_children_triggered();
 
+    void on_tabWidget_tabBarClicked(int index);
+
+    void on_actionOpen_triggered();
+
+    void on_save_triggered();
+
+    void on_actionSave_triggered();
+
 private:
     Ui::MainWindow *ui;
     TreeModel *model;
     int count=0;
+    QString filepath;
+
     void changed(const QItemSelection &selected, const QItemSelection &deselected);
     const QIcon folder = QIcon(":/res/img/folderIcon.png");
     const QIcon greenSphere = QIcon(":/res/img/kpiIcon.png");
@@ -58,5 +66,6 @@ private:
     AbstractNode *randomize(AbstractNode*,int);
     int countNodes(AbstractNode *);
     void dfs(QStandardItem * item);
+    QJsonDocument toJson(QStandardItem *nodeIdx) const;
 };
 #endif // MAINWINDOW_H

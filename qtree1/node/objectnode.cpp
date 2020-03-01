@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QDebug>
 #include <QJsonArray>
+#include <QJSonValue>
 
 ObjectNode::ObjectNode()
 {
@@ -40,3 +41,27 @@ QJsonObject ObjectNode::writeJson(QJsonObject &json) const{
 
     return json;
 }
+
+QJsonObject ObjectNode::readJson(const QJsonObject &obj){
+    QStringList keys = obj.keys();
+    for(int i=0;i<keys.size();++i){
+        const QString key = keys.at(i);
+        const QJsonValue value = obj.value(key);
+        if( value.type() == QJsonValue::Type::String ){
+            appendRow(new StringNode(key,value.toString()));
+        }else if( value.type() == QJsonValue::Type::Double ){
+            appendRow(new NumericNode(key,value.toDouble()));
+        }else if( value.type() == QJsonValue::Type::Object ){
+            ObjectNode *obj = new ObjectNode(key);
+            obj->readJson(value.toObject());
+            appendRow(obj);
+        }else if( value.type() == QJsonValue::Type::Array ){
+            ArrayNode *arr = new ArrayNode(key);
+            arr->readJson(value.toArray());
+            appendRow(arr);
+        }
+    }
+    return obj;
+}
+
+

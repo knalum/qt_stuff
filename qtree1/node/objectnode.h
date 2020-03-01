@@ -16,6 +16,9 @@ public:
     void setValue(QString) override {}
 
     QJsonObject writeJson(QJsonObject &json) const;
+    QJsonObject readJson(const QJsonObject &obj);
+
+
 };
 
 #endif // OBJECTNODE_H

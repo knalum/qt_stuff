@@ -1,11 +1,12 @@
 <RCC>
     <qresource prefix="/res">
-        <file>img/folderIcon.png</file>
         <file>img/newFile.png</file>
         <file>img/text.png</file>
         <file>img/module.png</file>
         <file>img/numeric.png</file>
         <file>img/array.png</file>
         <file>img/file_save_as.png</file>
+        <file>img/folder_vertical_open.png</file>
+        <file>img/tree_list.png</file>
     </qresource>
 </RCC>

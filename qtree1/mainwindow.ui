@@ -171,6 +171,7 @@
     <addaction name="menuAdd"/>
     <addaction name="actionRandom_tree"/>
     <addaction name="actionExpand_children"/>
+    <addaction name="actionUnexpand_children"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -327,6 +328,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionUnexpand_children">
+   <property name="text">
+    <string>Unexpand children</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Num+Left</string>
    </property>
   </action>
  </widget>

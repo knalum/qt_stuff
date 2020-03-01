@@ -41,6 +41,20 @@ AbstractNode *getNode(AbstractNode *item){
     return nullptr;
 }
 
+AbstractNode *MainWindow::deepCopy(AbstractNode *real,AbstractNode *copied){
+
+    int rows = real->rowCount();
+    qDebug()<<"Count: "<<QString::number(rows);
+    for(int i=0;i<rows;i++){
+        AbstractNode *localChild = dynamic_cast<AbstractNode*>(real->child(i,0));
+        AbstractNode *copy = getNode(localChild);
+
+        qDebug()<<"Copy "<<localChild->text()<<" to "<<copied->text();
+        copied->appendRow(localChild);
+        deepCopy(localChild,copy);
+    }
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -67,11 +81,11 @@ MainWindow::MainWindow(QWidget *parent)
 
         if (selected.size() > 0){
             auto *item = model->itemFromIndex(selected.at(0));
-            QClipboard *clipboard = QApplication::clipboard();
-            clipboard->setText(QString("Custom clipboard text: %1").arg(item->text()));
 
-            AbstractNode *castNode = castNode = getNode(item);
-            this->copy = castNode;
+            QString json(toJsonWithSelectedNode(item).toJson());
+
+            QClipboard *clipboard = QApplication::clipboard();
+            clipboard->setText(json);
         }
     });
 
@@ -80,11 +94,16 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(shortcutPaste, &QShortcut::activated, [this] () {
         auto selected = ui->treeView->selectionModel()->selectedIndexes();
 
-        if (selected.size() > 0 && this->copy != nullptr){
+        if (selected.size() > 0 ){
+            qDebug()<<"Paste";
             auto *item = model->itemFromIndex(selected.at(0));
-            AbstractNode *node = this->copy;
-            auto clone = getNode(node);
-            item->appendRow(clone);
+            ObjectNode *aNode = dynamic_cast<ObjectNode*>(item);
+
+            QClipboard *clipboard = QApplication::clipboard();
+
+            QString jsonStr = clipboard->text();
+            QJsonDocument loadDoc(QJsonDocument::fromJson(clipboard->text().toUtf8()));
+            aNode->readJson(loadDoc.object());
             ui->treeView->setExpanded(selected.at(0),true);
         }
     });
@@ -241,14 +260,6 @@ void MainWindow::on_actionArray_triggered(){
 
 void dfs(AbstractNode *root){
     auto data = root->data().toString();
-
-    QString msg;
-    msg.sprintf("type=%s name=%s  value=%s",
-                root->getType().toStdString().c_str(),
-                root->text().toStdString().c_str(),
-                root->getTextValue().toStdString().c_str());
-    qDebug()<<msg;
-
     int rows = root->rowCount();
     for(int i=0;i<rows;i++){
         QStandardItem *localChild = root->child(i,0);
@@ -339,6 +350,19 @@ void MainWindow::on_actionSave_triggered(){
 }
 
 
+QJsonDocument MainWindow::toJsonWithSelectedNode(QStandardItem *nodeIdx) const{
+    QJsonObject rootJsonObj;
+    ObjectNode *item = dynamic_cast<ObjectNode*>(nodeIdx);
+
+
+    item->writeJson(rootJsonObj);
+
+    QJsonObject topRoot;
+    topRoot[item->text()] = rootJsonObj;
+    QJsonDocument saveDoc(topRoot);
+    return saveDoc;
+}
+
 QJsonDocument MainWindow::toJson(QStandardItem *nodeIdx) const{
     QJsonObject rootJsonObj;
     ObjectNode *item = dynamic_cast<ObjectNode*>(nodeIdx);
@@ -413,10 +437,10 @@ int MainWindow::countNodes(AbstractNode *root){
     }
 }
 
-void MainWindow::dfs(QStandardItem * item){
-    ui->treeView->setExpanded(item->index(),true);
+void MainWindow::dfs(QStandardItem * item,bool setExpanded){
+    ui->treeView->setExpanded(item->index(),setExpanded);
     for(int i=0;i<item->rowCount();++i){
-        dfs(item->child(i,0));
+        dfs(item->child(i,0),setExpanded);
     }
 }
 
@@ -430,20 +454,34 @@ void MainWindow::on_actionExpand_children_triggered(){
     }
 
     auto item = model->itemFromIndex(idx);
-    dfs(item);
+    dfs(item,true);
 }
 
-void MainWindow::on_tabWidget_tabBarClicked(int index)
-{
-    qDebug()<<"Tab index: "+QString::number(index);
-    if( index == 1 ){
-        // JSON-tab
-        QStandardItem *nodeIdx = model->item(0,0);
-        QString jsonStr(this->toJson(nodeIdx).toJson());
-        ui->jsonTextField->setPlainText(jsonStr);
+void MainWindow::on_tabWidget_tabBarClicked(int index){
+    QModelIndex idx;
+    if( !ui->treeView->selectionModel()->selectedIndexes().isEmpty() ){
+        idx = ui->treeView->selectionModel()->selectedIndexes().at(0);
+    }else{
+        idx = model->index(0,0);
     }
+
+    auto item = model->itemFromIndex(idx);
+    dfs(item,false);
 }
 
 
 
 
+
+void MainWindow::on_actionUnexpand_children_triggered()
+{
+    QModelIndex idx;
+    if( !ui->treeView->selectionModel()->selectedIndexes().isEmpty() ){
+        idx = ui->treeView->selectionModel()->selectedIndexes().at(0);
+    }else{
+        idx = model->index(0,0);
+    }
+
+    auto item = model->itemFromIndex(idx);
+    dfs(item,false);
+}

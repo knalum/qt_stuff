@@ -15,7 +15,6 @@ ObjectNode::ObjectNode()
 
 QJsonObject ObjectNode::writeJson(QJsonObject &json) const{
 
-
     for(int i=0;i<rowCount();++i){
         auto ch = child(i,0);
         qDebug()<<ch->text();

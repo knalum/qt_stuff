@@ -51,6 +51,8 @@ private slots:
 
     void on_actionSave_triggered();
 
+    void on_actionUnexpand_children_triggered();
+
 private:
     Ui::MainWindow *ui;
     TreeModel *model;
@@ -65,7 +67,9 @@ private:
     AbstractNode *copy;
     AbstractNode *randomize(AbstractNode*,int);
     int countNodes(AbstractNode *);
-    void dfs(QStandardItem * item);
+    void dfs(QStandardItem * item,bool);
     QJsonDocument toJson(QStandardItem *nodeIdx) const;
+    AbstractNode *deepCopy(AbstractNode *item,AbstractNode *copied);
+    QJsonDocument toJsonWithSelectedNode(QStandardItem *nodeIdx) const;
 };
 #endif // MAINWINDOW_H

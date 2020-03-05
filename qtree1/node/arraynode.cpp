@@ -1,9 +1,12 @@
 #include "arraynode.h"
+#include "booleannode.h"
 #include "numericnode.h"
 #include "objectnode.h"
 #include "stringnode.h"
 
 #include <QJsonArray>
+#include <QJsonDocument>
+#include <QDebug>
 
 ArrayNode::ArrayNode()
 {
@@ -33,6 +36,9 @@ QJsonArray ArrayNode::writeJsonArray(QJsonArray &arr) const{
         }else if ( dynamic_cast<NumericNode*>(ch) != nullptr ){
             auto child = dynamic_cast<NumericNode*>(ch);
             arr.append(child->getValue());
+        }else if ( dynamic_cast<BooleanNode*>(ch) != nullptr ){
+            auto child = dynamic_cast<BooleanNode*>(ch);
+            arr.append(child->getValue());
         }
     }
 
@@ -48,6 +54,8 @@ QJsonArray ArrayNode::readJson(const QJsonArray &arr){
             appendRow(new StringNode(value.toString(),value.toString()));
         }else if( value.type() == QJsonValue::Type::Double ){
             appendRow(new NumericNode("",value.toDouble()));
+        }else if( value.type() == QJsonValue::Type::Bool ){
+            appendRow(new BooleanNode("",value.toBool()));
         }else if( value.type() == QJsonValue::Type::Object ){
             ObjectNode *obj = new ObjectNode();
             obj->readJson(value.toObject());
@@ -59,4 +67,27 @@ QJsonArray ArrayNode::readJson(const QJsonArray &arr){
         }
     }
     return arr;
+}
+
+void ArrayNode::readObj(QJsonDocument doc){
+    if( doc.isObject() ){
+        QJsonObject obj = doc.object();
+        QString key = obj.begin().key();
+        QJsonValueRef valueRef = obj.begin().value();
+        if( valueRef.isString() ){
+            auto str = valueRef.toString();
+            appendRow(new StringNode(key,str));
+        }else if( valueRef.isDouble() ){
+            auto num = valueRef.toDouble();
+            appendRow(new NumericNode(key,num));
+        }else if( valueRef.isBool() ){
+            auto num = valueRef.toBool();
+            appendRow(new BooleanNode(key,num));
+        }else if( valueRef.isObject() ){
+            QJsonObject jsonObj = valueRef.toObject();
+            ObjectNode *objNode = new ObjectNode(key);
+            objNode->readJson(jsonObj);
+            appendRow(objNode);
+        }
+    }
 }

@@ -129,6 +129,20 @@
         <item row="2" column="1">
          <widget class="QLineEdit" name="valueField"/>
         </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="comboBox">
+          <item>
+           <property name="text">
+            <string>true</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>false</string>
+           </property>
+          </item>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -201,6 +215,7 @@
    <addaction name="actionArray"/>
    <addaction name="actionString_Item"/>
    <addaction name="actionNumeric"/>
+   <addaction name="actionBoolean"/>
    <addaction name="separator"/>
    <addaction name="actionRandom_tree"/>
   </widget>
@@ -336,6 +351,15 @@
    </property>
    <property name="shortcut">
     <string>Shift+Num+Left</string>
+   </property>
+  </action>
+  <action name="actionBoolean">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/res/img/boolean.png</normaloff>:/res/img/boolean.png</iconset>
+   </property>
+   <property name="text">
+    <string>Boolean</string>
    </property>
   </action>
  </widget>

@@ -53,6 +53,10 @@ private slots:
 
     void on_actionUnexpand_children_triggered();
 
+    void on_actionBoolean_triggered();
+
+    void on_comboBox_currentTextChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     TreeModel *model;
@@ -69,7 +73,6 @@ private:
     int countNodes(AbstractNode *);
     void dfs(QStandardItem * item,bool);
     QJsonDocument toJson(QStandardItem *nodeIdx) const;
-    AbstractNode *deepCopy(AbstractNode *item,AbstractNode *copied);
     QJsonDocument toJsonWithSelectedNode(QStandardItem *nodeIdx) const;
 };
 #endif // MAINWINDOW_H

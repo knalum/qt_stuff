@@ -8,5 +8,6 @@
         <file>img/file_save_as.png</file>
         <file>img/folder_vertical_open.png</file>
         <file>img/tree_list.png</file>
+        <file>img/boolean.png</file>
     </qresource>
 </RCC>

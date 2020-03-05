@@ -1,4 +1,5 @@
 #include "arraynode.h"
+#include "booleannode.h"
 #include "numericnode.h"
 #include "objectnode.h"
 #include "stringnode.h"
@@ -17,7 +18,6 @@ QJsonObject ObjectNode::writeJson(QJsonObject &json) const{
 
     for(int i=0;i<rowCount();++i){
         auto ch = child(i,0);
-        qDebug()<<ch->text();
 
         if( dynamic_cast<ObjectNode*>(ch) != nullptr ){
             auto child = dynamic_cast<ObjectNode*>(ch);
@@ -30,13 +30,14 @@ QJsonObject ObjectNode::writeJson(QJsonObject &json) const{
         }else if ( dynamic_cast<StringNode*>(ch) != nullptr ){
             auto child = dynamic_cast<StringNode*>(ch);
             json[child->text()] = child->getTextValue();
+        }else if ( dynamic_cast<BooleanNode*>(ch) != nullptr ){
+            auto child = dynamic_cast<BooleanNode*>(ch);
+            json[child->text()] = child->getValue();
         }else if ( dynamic_cast<NumericNode*>(ch) != nullptr ){
             auto child = dynamic_cast<NumericNode*>(ch);
             json[child->text()] = child->getValue();
         }
     }
-
-
 
     return json;
 }
@@ -50,6 +51,8 @@ QJsonObject ObjectNode::readJson(const QJsonObject &obj){
             appendRow(new StringNode(key,value.toString()));
         }else if( value.type() == QJsonValue::Type::Double ){
             appendRow(new NumericNode(key,value.toDouble()));
+        }else if( value.type() == QJsonValue::Type::Bool ){
+            appendRow(new BooleanNode(key,value.toBool()));
         }else if( value.type() == QJsonValue::Type::Object ){
             ObjectNode *obj = new ObjectNode(key);
             obj->readJson(value.toObject());

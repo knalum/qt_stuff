@@ -16,6 +16,7 @@ public:
 
     QJsonArray writeJsonArray(QJsonArray &arr) const;
     QJsonArray readJson(const QJsonArray &arr);
+    void readObj(QJsonDocument doc);
 
 };
 

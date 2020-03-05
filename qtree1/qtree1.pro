@@ -20,6 +20,7 @@ SOURCES += \
     mainwindow.cpp \
     node/abstractnode.cpp \
     node/arraynode.cpp \
+    node/booleannode.cpp \
     node/numericnode.cpp \
     node/objectnode.cpp \
     node/stringnode.cpp \
@@ -29,6 +30,7 @@ HEADERS += \
     mainwindow.h \
     node/abstractnode.h \
     node/arraynode.h \
+    node/booleannode.h \
     node/numericnode.h \
     node/objectnode.h \
     node/stringnode.h \

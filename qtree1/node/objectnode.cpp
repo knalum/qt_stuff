@@ -22,20 +22,20 @@ QJsonObject ObjectNode::writeJson(QJsonObject &json) const{
         if( dynamic_cast<ObjectNode*>(ch) != nullptr ){
             auto child = dynamic_cast<ObjectNode*>(ch);
             QJsonObject obj;
-            json[child->text()] = child->writeJson(obj);
+            json[child->getName()] = child->writeJson(obj);
         }else if ( dynamic_cast<ArrayNode*>(ch) != nullptr ){
             auto child = dynamic_cast<ArrayNode*>(ch);
             QJsonArray arr;
-            json[child->text()] = child->writeJsonArray(arr);
+            json[child->getName()] = child->writeJsonArray(arr);
         }else if ( dynamic_cast<StringNode*>(ch) != nullptr ){
             auto child = dynamic_cast<StringNode*>(ch);
-            json[child->text()] = child->getTextValue();
+            json[child->getName()] = child->getTextValue();
         }else if ( dynamic_cast<BooleanNode*>(ch) != nullptr ){
             auto child = dynamic_cast<BooleanNode*>(ch);
-            json[child->text()] = child->getValue();
+            json[child->getName()] = child->getValue();
         }else if ( dynamic_cast<NumericNode*>(ch) != nullptr ){
             auto child = dynamic_cast<NumericNode*>(ch);
-            json[child->text()] = child->getValue();
+            json[child->getName()] = child->getValue();
         }
     }
 

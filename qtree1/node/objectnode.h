@@ -7,9 +7,12 @@
 
 class ObjectNode : public AbstractNode
 {
+
 public:
     ObjectNode();
-    ObjectNode(QString n) : AbstractNode(n,QIcon(":/res/img/module.png")) {}
+    ObjectNode(QString n) : AbstractNode(n+" : {}",QIcon(":/res/img/module.png")) {
+        this->name = n;
+    }
 
     QString getType() const override {return "object";}
     QString getTextValue() const override {return "";}
@@ -17,6 +20,9 @@ public:
 
     QJsonObject writeJson(QJsonObject &json) const;
     QJsonObject readJson(const QJsonObject &obj);
+
+    QString getName() const override {return name;}
+    void setName(QString name) override {this->name = name;}
 
 
 };

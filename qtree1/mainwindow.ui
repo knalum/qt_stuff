@@ -177,11 +177,13 @@
       <string>Add</string>
      </property>
      <addaction name="actionAdd_object"/>
+     <addaction name="actionArray"/>
      <addaction name="actionString_Item"/>
      <addaction name="actionNumeric"/>
-     <addaction name="actionArray"/>
     </widget>
     <addaction name="actionremoveItem"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
     <addaction name="menuAdd"/>
     <addaction name="actionRandom_tree"/>
     <addaction name="actionExpand_children"/>
@@ -217,7 +219,11 @@
    <addaction name="actionNumeric"/>
    <addaction name="actionBoolean"/>
    <addaction name="separator"/>
+   <addaction name="actionCopy"/>
+   <addaction name="actionPaste"/>
+   <addaction name="actionremoveItem"/>
    <addaction name="actionRandom_tree"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew">
@@ -233,6 +239,10 @@
    </property>
   </action>
   <action name="actionremoveItem">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/res/img/delete.png</normaloff>:/res/img/delete.png</iconset>
+   </property>
    <property name="text">
     <string>Remove</string>
    </property>
@@ -360,6 +370,30 @@
    </property>
    <property name="text">
     <string>Boolean</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/res/img/page_copy.png</normaloff>:/res/img/page_copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/res/img/paste_plain.png</normaloff>:/res/img/paste_plain.png</iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

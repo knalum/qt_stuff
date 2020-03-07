@@ -47,44 +47,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Copy
     auto shortcutCopy = new QShortcut(QKeySequence::Copy, ui->treeView);
-    QObject::connect(shortcutCopy, &QShortcut::activated, [this] () {
-        auto selected = ui->treeView->selectionModel()->selectedIndexes();
-
-        if (selected.size() > 0){
-            auto *item = model->itemFromIndex(selected.at(0));
-
-            QString json(toJsonWithSelectedNode(item).toJson());
-
-            QClipboard *clipboard = QApplication::clipboard();
-            clipboard->setText(json);
-        }
+    QObject::connect(shortcutCopy, &QShortcut::activated, [this](){
+        this->copyNode();
     });
 
     // Paste
     auto shortcutPaste = new QShortcut(QKeySequence::Paste, ui->treeView);
     QObject::connect(shortcutPaste, &QShortcut::activated, [this] () {
-        auto selected = ui->treeView->selectionModel()->selectedIndexes();
-
-        if (selected.size() > 0 ){
-
-            QClipboard *clipboard = QApplication::clipboard();
-            QString jsonStr = clipboard->text();
-            QJsonDocument loadDoc(QJsonDocument::fromJson(clipboard->text().toUtf8()));
-
-
-
-            AbstractNode *item = model->itemFromIndex(selected.at(0));
-            if( dynamic_cast<ObjectNode*>(item) != nullptr ){
-                ObjectNode *aNode = dynamic_cast<ObjectNode*>(item);
-                aNode->readJson(loadDoc.object());
-            }else if( dynamic_cast<ArrayNode*>(item) != nullptr ){
-                ArrayNode *aNode = dynamic_cast<ArrayNode*>(item);
-                aNode->readObj(loadDoc);
-            }
-
-
-            ui->treeView->setExpanded(selected.at(0),true);
-        }
+       this->pasteNode();
     });
 }
 
@@ -97,25 +67,6 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_triggered(){
     model->clear();
     auto *root = new ObjectNode("root");
-
-    // obj
-    /*
-    auto ch1 = new ObjectNode("ch1");
-    ch1->appendRow(new ObjectNode("sub1"));
-    auto ch2 = new ObjectNode("ch2");
-    auto ch3 = new ObjectNode("ch3");
-    root->appendRow(ch1);
-    root->appendRow(ch2);
-    root->appendRow(ch3);
-    */
-
-    // arr
-    /*
-    auto arr = new ArrayNode("arr");
-    arr->appendRow(new StringNode("str1","text"));
-    root->appendRow(arr);
-    model->appendRow(root);
-    */
 
     model->appendRow(root);
 
@@ -130,7 +81,8 @@ void MainWindow::changed(const QItemSelection &selected, const QItemSelection &d
 
     AbstractNode *item = dynamic_cast<AbstractNode*>(model->itemFromIndex(localIndexes.at(0)));
 
-    ui->lineEdit->setText(item->text());
+    ui->lineEdit->setVisible(true);
+    ui->lineEdit->setText(item->getName());
     ui->typeLabel->setText(item->getType());
 
     if( dynamic_cast<BooleanNode*>(item) != nullptr ){
@@ -146,6 +98,12 @@ void MainWindow::changed(const QItemSelection &selected, const QItemSelection &d
         ui->valueField->setVisible(false);
     }else{
         ui->valueField->setVisible(true);
+    }
+
+    // If parent is array , do not display name field
+    auto parent = item->parent();
+    if( parent != nullptr && dynamic_cast<ArrayNode*>(parent) != nullptr ){
+        ui->lineEdit->setVisible(false);
     }
 }
 
@@ -188,28 +146,45 @@ void MainWindow::onCustomContextMenu(const QPoint &point){
     }
 }
 
-void MainWindow::addNode(QModelIndex item,AbstractNode *node){
+void MainWindow::addNode(QModelIndex item,AbstractNode *child){
     AbstractNode *parent = model->itemFromIndex(item);
 
-    parent->appendRow(node);
+    parent->appendRow(child);
     ui->treeView->setExpanded(item,true);
 
     ui->treeView->header()->setStretchLastSection(true);
     ui->treeView->resizeColumnToContents(0);
 }
 
+// node name field
 void MainWindow::on_lineEdit_textChanged(const QString &arg1){
     QModelIndexList localSelectedIndexes = ui->treeView->selectionModel()->selectedIndexes();
     AbstractNode *item = model->itemFromIndex(localSelectedIndexes.at(0));
-    item->setText(arg1);
+    item->setName(arg1);
+
+    if( dynamic_cast<ObjectNode*>(item) != nullptr ){
+        item->setText(item->getName()+" : {}");
+    }else if( dynamic_cast<ArrayNode*>(item) != nullptr ){
+        item->setText(item->getName()+" : []");
+    }else{
+        item->setText(item->getName()+" : "+item->getTextValue());
+    }
 }
 
-
+// node value field
 void MainWindow::on_valueField_textChanged(const QString &arg1){
     QModelIndexList localSelectedIndexes = ui->treeView->selectionModel()->selectedIndexes();
     AbstractNode *item = model->itemFromIndex(localSelectedIndexes.at(0));
     item->setValue(arg1);
+    if( dynamic_cast<ObjectNode*>(item) != nullptr ){
+        item->setText(item->getName()+" : {}");
+    }else if( dynamic_cast<ArrayNode*>(item) != nullptr ){
+        item->setText(item->getName()+" : []");
+    }else{
+        item->setText(item->getName()+" : "+item->getTextValue());
+    }
 }
+
 
 void MainWindow::on_actionAbout_triggered()
 {
@@ -221,8 +196,10 @@ void MainWindow::on_actionremoveItem_triggered()
     QModelIndexList idx = ui->treeView->selectionModel()->selectedIndexes();
     for(auto item : idx){
         AbstractNode *itemToDelete = model->itemFromIndex(item);
-        this->model->removeRow(itemToDelete->row(),item.parent());
-
+        auto parent = item.parent().isValid();
+        if( parent == true ){
+            this->model->removeRow(itemToDelete->row(),item.parent());
+        }
     }
 }
 
@@ -342,29 +319,69 @@ QJsonDocument MainWindow::toJsonWithSelectedNode(QStandardItem *nodeIdx) const{
         QJsonObject rootJsonObj;
         ObjectNode *item = dynamic_cast<ObjectNode*>(nodeIdx);
         item->writeJson(rootJsonObj);
-        topRoot[nodeIdx->text()] = rootJsonObj;
+        topRoot[item->getName()] = rootJsonObj;
     }else if( dynamic_cast<ArrayNode*>(nodeIdx) != nullptr ){
         QJsonArray arr;
         ArrayNode *item = dynamic_cast<ArrayNode*>(nodeIdx);
         item->writeJsonArray(arr);
-        topRoot[nodeIdx->text()] = arr;
+        topRoot[item->getName()] = arr;
     }else if( dynamic_cast<StringNode*>(nodeIdx) != nullptr ){
         QJsonObject obj;
         StringNode *item = dynamic_cast<StringNode*>(nodeIdx);
-        topRoot[item->text()] = item->getValue();
+        topRoot[item->getName()] = item->getValue();
     }else if( dynamic_cast<NumericNode*>(nodeIdx) != nullptr ){
         QJsonObject obj;
         NumericNode *item = dynamic_cast<NumericNode*>(nodeIdx);
-        topRoot[item->text()] = item->getValue();
+        topRoot[item->getName()] = item->getValue();
     }else if( dynamic_cast<BooleanNode*>(nodeIdx) != nullptr ){
         QJsonObject obj;
         BooleanNode *item = dynamic_cast<BooleanNode*>(nodeIdx);
-        topRoot[item->text()] = item->getValue();
+        topRoot[item->getName()] = item->getValue();
     }
 
 
     QJsonDocument saveDoc(topRoot);
     return saveDoc;
+}
+
+void MainWindow::copyNode()
+{
+    auto selected = ui->treeView->selectionModel()->selectedIndexes();
+
+    if (selected.size() > 0){
+        auto *item = model->itemFromIndex(selected.at(0));
+
+        QString json(toJsonWithSelectedNode(item).toJson());
+
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(json);
+    }
+}
+
+void MainWindow::pasteNode()
+{
+    auto selected = ui->treeView->selectionModel()->selectedIndexes();
+
+    if (selected.size() > 0 ){
+
+        QClipboard *clipboard = QApplication::clipboard();
+        QString jsonStr = clipboard->text();
+        QJsonDocument loadDoc(QJsonDocument::fromJson(clipboard->text().toUtf8()));
+
+
+
+        AbstractNode *item = model->itemFromIndex(selected.at(0));
+        if( dynamic_cast<ObjectNode*>(item) != nullptr ){
+            ObjectNode *aNode = dynamic_cast<ObjectNode*>(item);
+            aNode->readJson(loadDoc.object());
+        }else if( dynamic_cast<ArrayNode*>(item) != nullptr ){
+            ArrayNode *aNode = dynamic_cast<ArrayNode*>(item);
+            aNode->readObj(loadDoc);
+        }
+
+
+        ui->treeView->setExpanded(selected.at(0),true);
+    }
 }
 
 QJsonDocument MainWindow::toJson(QStandardItem *nodeIdx) const{
@@ -503,4 +520,16 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg){
     }else if( arg == "false" ){
         boolNode->setValue(false);
     }
+    item->setText(item->getName()+" : "+item->getTextValue());
+}
+
+void MainWindow::on_actionCopy_triggered()
+{
+    qDebug()<<"Copy";
+    this->copyNode();
+}
+
+void MainWindow::on_actionPaste_triggered()
+{
+    this->pasteNode();
 }

@@ -9,5 +9,8 @@
         <file>img/folder_vertical_open.png</file>
         <file>img/tree_list.png</file>
         <file>img/boolean.png</file>
+        <file>img/delete.png</file>
+        <file>img/paste_plain.png</file>
+        <file>img/page_copy.png</file>
     </qresource>
 </RCC>

@@ -57,6 +57,9 @@ private slots:
 
     void on_comboBox_currentTextChanged(const QString &arg1);
 
+    void on_actionCopy_triggered();
+    void on_actionPaste_triggered();
+
 private:
     Ui::MainWindow *ui;
     TreeModel *model;
@@ -74,5 +77,9 @@ private:
     void dfs(QStandardItem * item,bool);
     QJsonDocument toJson(QStandardItem *nodeIdx) const;
     QJsonDocument toJsonWithSelectedNode(QStandardItem *nodeIdx) const;
+
+    void copyNode();
+    void pasteNode();
+
 };
 #endif // MAINWINDOW_H

@@ -18,6 +18,9 @@ public:
         return item;
     }
 
+    QString text() const  {return "???";}
+
+
 private:
     AbstractNode *rootItem;
 };

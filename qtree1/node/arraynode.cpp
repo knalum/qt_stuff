@@ -57,7 +57,7 @@ QJsonArray ArrayNode::readJson(const QJsonArray &arr){
         }else if( value.type() == QJsonValue::Type::Bool ){
             appendRow(new BooleanNode("",value.toBool()));
         }else if( value.type() == QJsonValue::Type::Object ){
-            ObjectNode *obj = new ObjectNode();
+            ObjectNode *obj = new ObjectNode("");
             obj->readJson(value.toObject());
             appendRow(obj);
         }else if( value.type() == QJsonValue::Type::Array ){
